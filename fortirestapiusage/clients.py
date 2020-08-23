@@ -1,14 +1,14 @@
 import requests
-from urllib.parse import urlencode, quote
+from urllib.parse import urlencode
 
 
 class FortiAPIClient():
 
-    def __init__(self, host, session=None, is_https=True, timeout=30):
+    def __init__(self, host, session=None, protocol='http', timeout=12):
         self._host = host
         self._session = session or requests.session()
-        self._is_https = is_https
-        self.timeout = timeout
+        self._protocol = protocol
+        self._timeout = timeout
 
     @property
     def host(self):
@@ -19,12 +19,16 @@ class FortiAPIClient():
         return self._session
 
     @property
-    def is_https(self):
-        return self._is_https
+    def protocol(self):
+        return self._protocol
+
+    @property
+    def timeout(self):
+        return self._timeout
 
     @property
     def url_root(self):
-        url_root = f'https://{self._host}' if self._is_https else f'http://{self._host}'
+        url_root = f'{self._protocol}://{self._host}'
         return url_root
 
     def login(self, username, password, path='/logincheck'):
@@ -34,12 +38,19 @@ class FortiAPIClient():
             'secretkey': password,
         }
         encoded_data = urlencode(data)
-        response = self._session.post(url=url, data=encoded_data)
+        response = self._session.post(
+            url=url,
+            data=encoded_data,
+            timeout=self._timeout
+        )
         return response
 
     def logout(self, path='/logout'):
         url = self.url_root + path
-        response = self._session.post(url=url)
+        response = self._session.post(
+            url=url,
+            timeout=self._timeout
+        )
         return response
 
     def get(self, path, params={}):
@@ -90,50 +101,3 @@ class FortiAPIClient():
             timeout=self.timeout,
         )
         return response
-
-
-# Usage
-# Login
-client = FortiAPIClient('150.117.123.248', is_https=False, timeout=30)
-client.login(username='admin', password='4fcb3244-e5d2-449c-a49d-7b6fa32bfa7f')
-
-
-# Get
-response = client.get(
-    path='/api/v2/cmdb/firewall/address',
-    params={'format': 'name|subnet'}
-)
-print(response.text)
-
-
-# Read & write
-response.json()
-
-
-# Post
-response = client.post(
-    path='/api/v2/cmdb/firewall/address',
-    json={
-        'name': 'address 10.210.201.168/32',
-        'type': 'ipmask',
-        'subnet': '10.210.201.168 255.255.255.255',
-    }
-)
-print(response.text)
-
-
-# Put
-response = client.put(
-    path='/api/v2/cmdb/firewall/address' + '/' + quote('address 10.210.201.168/32', safe=''),
-    json={
-        'name': 'address__10.210.201.168/32',
-    }
-)
-print(response.json())
-
-
-# Delete
-response = client.delete(
-    path='/api/v2/cmdb/firewall/address' + '/' + quote('address__10.210.201.168/32', safe=''),
-)
-print(response.text)
