@@ -10,6 +10,15 @@ class FortiAPIClient():
         self._protocol = protocol
         self._timeout = timeout
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self._host.__repr__()})'
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
     @property
     def host(self):
         return self._host
@@ -41,14 +50,6 @@ class FortiAPIClient():
         response = self._session.post(
             url=url,
             data=encoded_data,
-            timeout=self._timeout
-        )
-        return response
-
-    def logout(self, path='/logout'):
-        url = self.url_root + path
-        response = self._session.post(
-            url=url,
             timeout=self._timeout
         )
         return response
@@ -101,3 +102,15 @@ class FortiAPIClient():
             timeout=self.timeout,
         )
         return response
+
+    def logout(self, path='/logout'):
+        url = self.url_root + path
+        response = self._session.post(
+            url=url,
+            timeout=self._timeout
+        )
+        return response
+
+    def close(self):
+        self.logout()
+        self._session.close()
