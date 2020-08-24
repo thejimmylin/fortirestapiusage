@@ -17,17 +17,15 @@ CREDENTIALS = {
     }
 }
 
-TEST_USER = 'readonlyadmin'
 
-
-class TestFortiAPIClient(unittest.TestCase):
+class FortiAPIClientTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         cls.client = FortiAPIClient(CREDENTIALS['host'])
         cls.client.login(
-            username=CREDENTIALS['users'][TEST_USER]['username'],
-            password=CREDENTIALS['users'][TEST_USER]['password']
+            username=CREDENTIALS['users']['admin']['username'],
+            password=CREDENTIALS['users']['admin']['password']
         )
 
     def test_get(self):
@@ -35,39 +33,43 @@ class TestFortiAPIClient(unittest.TestCase):
             path='/api/v2/cmdb/firewall/address',
             params={'format': 'name|subnet'}
         )
-        self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()['status'], 'success')
 
-    @unittest.skipIf(TEST_USER == 'readonlyadmin', 'This user is readonly.')
-    def test_post(self):
+    def test_post_delete(self):
         r = self.client.post(
             path='/api/v2/cmdb/firewall/address',
             json={
-                'name': 'address 10.210.201.168/32',
+                'name': 'address__admin__10.65.61.168/32',
                 'type': 'ipmask',
-                'subnet': '10.210.201.168 255.255.255.255',
+                'subnet': '10.65.61.168 255.255.255.255',
             }
         )
-        self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()['status'], 'success')
-
-    @unittest.skipIf(TEST_USER == 'readonlyadmin', 'This user is readonly.')
-    def test_put(self):
-        r = self.client.put(
-            path='/api/v2/cmdb/firewall/address' + '/' + quote('address 10.210.201.168/32', safe=''),
-            json={
-                'name': 'address__10.210.201.168/32',
-            }
-        )
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.json()['status'], 'success')
-
-    @unittest.skipIf(TEST_USER == 'readonlyadmin', 'This user is readonly.')
-    def test_delete(self):
         r = self.client.delete(
-            path='/api/v2/cmdb/firewall/address' + '/' + quote('address__10.210.201.168/32', safe=''),
+            path='/api/v2/cmdb/firewall/address' + '/' + quote('address__admin__10.65.61.168/32', safe=''),
         )
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()['status'], 'success')
+
+    def test_post_put_delete(self):
+        r = self.client.post(
+            path='/api/v2/cmdb/firewall/address',
+            json={
+                'name': 'address__admin__10.65.61.168/32',
+                'type': 'ipmask',
+                'subnet': '10.65.61.168 255.255.255.255',
+            }
+        )
+        self.assertEqual(r.json()['status'], 'success')
+        r = self.client.put(
+            path='/api/v2/cmdb/firewall/address' + '/' + quote('address__admin__10.65.61.168/32', safe=''),
+            json={
+                'name': 'address__admin__10.65.61.168/32',
+            }
+        )
+        self.assertEqual(r.json()['status'], 'success')
+        r = self.client.delete(
+            path='/api/v2/cmdb/firewall/address' + '/' + quote('address__admin__10.65.61.168/32', safe=''),
+        )
         self.assertEqual(r.json()['status'], 'success')
 
     @classmethod
