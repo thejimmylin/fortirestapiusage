@@ -32,6 +32,9 @@ class TestFortiAPIClient(unittest.TestCase):
             password=CREDENTIALS['users']['admin']['password']
         )
 
+    def setUp(self):
+        print('Doing setUp..')
+
     def test_get(self):
         r = self.client.get(
             path='/api/v2/cmdb/firewall/address',
@@ -78,6 +81,9 @@ class TestFortiAPIClient(unittest.TestCase):
         )
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()['status'], 'success')
+
+    def tearDown(self):
+        print('Doing tearDown..')
 
     @classmethod
     def tearDownClass(cls):
