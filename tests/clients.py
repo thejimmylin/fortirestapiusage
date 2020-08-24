@@ -77,14 +77,12 @@ class FortiAPIClientTestCase(unittest.TestCase):
                 username=CREDENTIALS['users']['admin']['username'],
                 password=CREDENTIALS['users']['admin']['password']
             )
-            print(n)
             self.client.logout()
         r = self.client.login(
             username=CREDENTIALS['users']['admin']['username'],
             password=CREDENTIALS['users']['admin']['password']
         )
-        print(r.text)
-        self.assertEqual(r.json()['status'], 'success')
+        self.assertIsNotNone(r.cookies.get('ccsrftoken'))
 
     def tearDown(self):
         self.client.close()
