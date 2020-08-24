@@ -1,6 +1,6 @@
 import unittest
 from urllib.parse import quote
-from base import FortiAPIClient
+from fortirestapiusage.clients import FortiAPIClient
 
 
 """
