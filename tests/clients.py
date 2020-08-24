@@ -20,10 +20,9 @@ CREDENTIALS = {
 
 class FortiAPIClientTestCase(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        cls.client = FortiAPIClient(CREDENTIALS['host'])
-        cls.client.login(
+    def setUp(self):
+        self.client = FortiAPIClient(CREDENTIALS['host'])
+        self.client.login(
             username=CREDENTIALS['users']['admin']['username'],
             password=CREDENTIALS['users']['admin']['password']
         )
@@ -72,9 +71,23 @@ class FortiAPIClientTestCase(unittest.TestCase):
         )
         self.assertEqual(r.json()['status'], 'success')
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.client.close()
+    def test_login_logout_heavily(self):
+        for n in range(99):
+            self.client.login(
+                username=CREDENTIALS['users']['admin']['username'],
+                password=CREDENTIALS['users']['admin']['password']
+            )
+            print(n)
+            self.client.logout()
+        r = self.client.login(
+            username=CREDENTIALS['users']['admin']['username'],
+            password=CREDENTIALS['users']['admin']['password']
+        )
+        print(r.text)
+        self.assertEqual(r.json()['status'], 'success')
+
+    def tearDown(self):
+        self.client.close()
 
 
 if __name__ == '__main__':
