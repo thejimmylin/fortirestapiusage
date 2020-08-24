@@ -72,7 +72,7 @@ class FortiAPIClientTestCase(unittest.TestCase):
         self.assertEqual(r.json()['status'], 'success')
 
     def test_login_logout_heavily(self):
-        for n in range(99):
+        for n in range(49):
             self.client.login(
                 username=CREDENTIALS['users']['admin']['username'],
                 password=CREDENTIALS['users']['admin']['password']
