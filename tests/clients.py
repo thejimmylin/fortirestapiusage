@@ -3,10 +3,6 @@ from urllib.parse import quote
 from fortirestapiusage.clients import FortiAPIClient
 
 
-"""
-This basic assumes that there is no objects built in /api/v2/cmdb/firewall/address.
-"""
-
 CREDENTIALS = {
     'host': '150.117.123.248',
     'users': {
@@ -16,10 +12,12 @@ CREDENTIALS = {
         },
         'readonlyadmin': {
             'username': 'readonlyadmin',
-            'password': 'readonlyadmin'
+            'password': 'cb204a81-0a16-46e9-aaca-2a8cc070593b'
         }
     }
 }
+
+TEST_USER = 'readonlyadmin'
 
 
 class TestFortiAPIClient(unittest.TestCase):
@@ -28,13 +26,9 @@ class TestFortiAPIClient(unittest.TestCase):
     def setUpClass(cls):
         cls.client = FortiAPIClient(CREDENTIALS['host'])
         cls.client.login(
-            username=CREDENTIALS['users']['admin']['username'],
-            password=CREDENTIALS['users']['admin']['password']
+            username=CREDENTIALS['users'][TEST_USER]['username'],
+            password=CREDENTIALS['users'][TEST_USER]['password']
         )
-
-    @unittest.skip("demonstrating skipping")
-    def test_nothing(self):
-        self.fail("shouldn't happen")
 
     def test_get(self):
         r = self.client.get(
@@ -44,6 +38,7 @@ class TestFortiAPIClient(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()['status'], 'success')
 
+    @unittest.skipIf(TEST_USER == 'readonlyadmin', 'This user is readonly.')
     def test_post(self):
         r = self.client.post(
             path='/api/v2/cmdb/firewall/address',
@@ -56,6 +51,7 @@ class TestFortiAPIClient(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()['status'], 'success')
 
+    @unittest.skipIf(TEST_USER == 'readonlyadmin', 'This user is readonly.')
     def test_put(self):
         r = self.client.put(
             path='/api/v2/cmdb/firewall/address' + '/' + quote('address 10.210.201.168/32', safe=''),
@@ -66,16 +62,7 @@ class TestFortiAPIClient(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json()['status'], 'success')
 
-    def test_data_consistency(self):
-        r = self.client.get(
-            path='/api/v2/cmdb/firewall/address' + '/' + quote('address__10.210.201.168/32', safe=''),
-        )
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.json()['status'], 'success')
-        self.assertEqual(r.json()['results'][0]['name'], 'address__10.210.201.168/32')
-        self.assertEqual(r.json()['results'][0]['type'], 'ipmask')
-        self.assertEqual(r.json()['results'][0]['subnet'], '10.210.201.168 255.255.255.255')
-
+    @unittest.skipIf(TEST_USER == 'readonlyadmin', 'This user is readonly.')
     def test_delete(self):
         r = self.client.delete(
             path='/api/v2/cmdb/firewall/address' + '/' + quote('address__10.210.201.168/32', safe=''),
