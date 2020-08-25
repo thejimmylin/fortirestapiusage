@@ -1,4 +1,5 @@
 import unittest
+import json
 from urllib.parse import quote
 from fortirestapiusage.clients import FortiAPIClient
 
@@ -72,7 +73,7 @@ class FortiAPIClientTestCase(unittest.TestCase):
         self.assertEqual(r.json()['status'], 'success')
 
     def test_login_logout_heavily(self):
-        for n in range(49):
+        for n in range(10):
             self.client.login(
                 username=CREDENTIALS['users']['admin']['username'],
                 password=CREDENTIALS['users']['admin']['password']
@@ -83,6 +84,150 @@ class FortiAPIClientTestCase(unittest.TestCase):
             password=CREDENTIALS['users']['admin']['password']
         )
         self.assertIsNotNone(r.cookies.get('ccsrftoken'))
+
+    def test_post_delete_heavily(self):
+        for n in range(10):
+            r = self.client.post(
+                path='/api/v2/cmdb/firewall/address',
+                json={
+                    'name': 'address__admin__10.65.61.168/32',
+                    'type': 'ipmask',
+                    'subnet': '10.65.61.168 255.255.255.255',
+                }
+            )
+            self.assertEqual(r.json()['status'], 'success')
+            r = self.client.delete(
+                path='/api/v2/cmdb/firewall/address' + '/' + quote('address__admin__10.65.61.168/32', safe=''),
+            )
+            self.assertEqual(r.json()['status'], 'success')
+
+    def test_post_firewall_address_with_json_comment_and_check_consistency_and_delete(self):
+        name = '_address__10.65.61.168/32'
+        type_ = 'ipmask'
+        subnet = '10.65.61.168 255.255.255.255'
+        created_by = 'jimmy_lin'
+        remark = 'This is a remark field.'
+        self.client.post(
+            path='/api/v2/cmdb/firewall/address',
+            json={
+                'name': name,
+                'type': type_,
+                'subnet': subnet,
+                'comment': json.dumps({
+                    'created_by': created_by,
+                    'remark': remark,
+                }),
+            }
+        )
+        r = self.client.get(
+            path='/api/v2/cmdb/firewall/address' + '/' + quote(name, safe=''),
+        )
+        self.assertEqual(r.json()['status'], 'success')
+        self.assertEqual(len(r.json()['results']), 1)
+        self.assertEqual(r.json()['results'][0]['name'], name)
+        self.assertEqual(r.json()['results'][0]['type'], type_)
+        self.assertEqual(r.json()['results'][0]['subnet'], subnet)
+        self.assertEqual(json.loads(r.json()['results'][0]['comment'])['created_by'], created_by)
+        self.assertEqual(json.loads(r.json()['results'][0]['comment'])['remark'], remark)
+        self.client.delete(
+            path='/api/v2/cmdb/firewall/address' + '/' + quote('_address__10.65.61.168/32', safe=''),
+        )
+
+    def test_post_firewall_service_with_json_comment_and_check_consistency_and_delete(self):
+        name = '_service__tcp_portrange__50001__59999__udp_portrange__50001__59999'
+        tcp_portrange = '50001 59999'
+        udp_portrange = '50001 59999'
+        created_by = 'jimmy_lin'
+        remark = 'This is a remark field.'
+        self.client.post(
+            path='/api/v2/cmdb/firewall.service/custom',
+            json={
+                'name': name,
+                'tcp-portrange': tcp_portrange,
+                'udp-portrange': udp_portrange,
+                'comment': json.dumps({
+                    'created_by': created_by,
+                    'remark': remark,
+                }),
+            }
+        )
+        r = self.client.get(
+            path='/api/v2/cmdb/firewall.service/custom' + '/' + quote(name, safe=''),
+        )
+        self.assertEqual(r.json()['status'], 'success')
+        self.assertEqual(len(r.json()['results']), 1)
+        self.assertEqual(r.json()['results'][0]['name'], name)
+        self.assertEqual(r.json()['results'][0]['tcp-portrange'], tcp_portrange)
+        self.assertEqual(r.json()['results'][0]['udp-portrange'], udp_portrange)
+        self.assertEqual(json.loads(r.json()['results'][0]['comment'])['created_by'], created_by)
+        self.assertEqual(json.loads(r.json()['results'][0]['comment'])['remark'], remark)
+        self.client.delete(
+            path='/api/v2/cmdb/firewall.service/custom' + '/' + quote(name, safe=''),
+        )
+
+    def test_post_firewall_ippool_with_json_comment_and_check_consistency_and_delete(self):
+        name = '_ippool__168.65.61.168'
+        type_ = 'overload'
+        startip = '168.65.61.168'
+        endip = '168.65.61.168'
+        created_by = 'jimmy_lin'
+        remark = 'This is a remark field.'
+        self.client.post(
+            path='/api/v2/cmdb/firewall/ippool',
+            json={
+                'name': name,
+                'type': type_,
+                'startip': startip,
+                'endip': endip,
+                'comments': json.dumps({
+                    'created_by': created_by,
+                    'remark': remark,
+                }),
+            }
+        )
+        r = self.client.get(
+            path='/api/v2/cmdb/firewall/ippool' + '/' + quote(name, safe=''),
+        )
+        self.assertEqual(r.json()['status'], 'success')
+        self.assertEqual(len(r.json()['results']), 1)
+        self.assertEqual(r.json()['results'][0]['name'], name)
+        self.assertEqual(r.json()['results'][0]['type'], type_)
+        self.assertEqual(r.json()['results'][0]['startip'], startip)
+        self.assertEqual(r.json()['results'][0]['endip'], endip)
+        self.assertEqual(json.loads(r.json()['results'][0]['comments'])['created_by'], created_by)
+        self.assertEqual(json.loads(r.json()['results'][0]['comments'])['remark'], remark)
+        self.client.delete(
+            path='/api/v2/cmdb/firewall/ippool' + '/' + quote(name, safe=''),
+        )
+
+    def test_post_firewall_vip_with_json_comment_and_check_consistency_and_delete(self):
+        name = '_vip__100.65.61.168__10.65.61.168'
+        type_ = 'static-nat'
+        extinf = 'port1'
+        extip = '100.65.61.168'
+        mappedip = ['10.65.61.168',]
+        r = self.client.post(
+            path='/api/v2/cmdb/firewall/vip',
+            json={
+                'name': name,
+                'type': type_,
+                'extinf': extinf,
+                'extip': extip,
+                'mappedip': mappedip,
+            }
+        )
+        print(r.text)
+        r = self.client.get(
+            path='/api/v2/cmdb/firewall/vip' + '/' + quote(name, safe=''),
+        )
+        self.assertEqual(r.json()['status'], 'success')
+        self.assertEqual(len(r.json()['results']), 1)
+        self.assertEqual(r.json()['results'][0]['name'], name)
+        self.assertEqual(r.json()['results'][0]['extip'], extip)
+        self.assertEqual(r.json()['results'][0]['mappedip'], mappedip)
+        self.client.delete(
+            path='/api/v2/cmdb/firewall/vip' + '/' + quote(name, safe=''),
+        )
 
     def tearDown(self):
         self.client.close()
