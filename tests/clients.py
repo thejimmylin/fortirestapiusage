@@ -101,6 +101,49 @@ class FortiAPIClientTestCase(unittest.TestCase):
             )
             self.assertEqual(r.json()['status'], 'success')
 
+    def test_post_system_interface_with_json_comment_and_check_consistency_and_delete(self):
+        name = '_vlan__1688'
+        vdom = 'root'
+        type_ = 'vlan'
+        ip = '10.65.61.253 255.255.255.0'
+        # both int and str are ok
+        vlanid = 1688
+        interface = 'port3'
+        created_by = 'jimmy_lin'
+        remark = 'This is a remark field.'
+        self.client.post(
+            path='/api/v2/cmdb/system/interface',
+            json={
+                'name': name,
+                'vdom': vdom,
+                'type': type_,
+                'ip': ip,
+                'vlanid': vlanid,
+                'interface': interface,
+                'description': json.dumps({
+                    'created_by': created_by,
+                    'remark': remark,
+                }),
+            }
+        )
+        r = self.client.get(
+            path='/api/v2/cmdb/system/interface' + '/' + quote(name, safe=''),
+        )
+        print(r.text)
+        self.assertEqual(r.json()['status'], 'success')
+        self.assertEqual(len(r.json()['results']), 1)
+        self.assertEqual(r.json()['results'][0]['name'], name)
+        self.assertEqual(r.json()['results'][0]['vdom'], vdom)
+        self.assertEqual(r.json()['results'][0]['type'], type_)
+        self.assertEqual(r.json()['results'][0]['ip'], ip)
+        self.assertEqual(r.json()['results'][0]['vlanid'], vlanid)
+        self.assertEqual(r.json()['results'][0]['interface'], interface)
+        self.assertEqual(json.loads(r.json()['results'][0]['description'])['created_by'], created_by)
+        self.assertEqual(json.loads(r.json()['results'][0]['description'])['remark'], remark)
+        self.client.delete(
+            path='/api/v2/cmdb/system/interface' + '/' + quote(name, safe=''),
+        )
+
     def test_post_firewall_address_with_json_comment_and_check_consistency_and_delete(self):
         name = '_address__10.65.61.168/32'
         type_ = 'ipmask'
@@ -237,11 +280,28 @@ class FortiAPIClientTestCase(unittest.TestCase):
         )
 
     def test_post_firewall_policy_with_json_comment_and_check_consistency_and_delete(self):
+        name = '_address__10.65.61.168/32'
+        type_ = 'ipmask'
+        subnet = '10.65.61.168 255.255.255.255'
+        created_by = 'jimmy_lin'
+        remark = 'This is a remark field.'
+        self.client.post(
+            path='/api/v2/cmdb/firewall/address',
+            json={
+                'name': name,
+                'type': type_,
+                'subnet': subnet,
+                'comment': json.dumps({
+                    'created_by': created_by,
+                    'remark': remark,
+                }),
+            }
+        )
         r = self.client.post(
             path='/api/v2/cmdb/firewall/policy',
             json={
-                'srcintf': [{"name": "port1"}],
-                'dstintf': [{"name": "port3"}],
+                'srcintf': [{"name": "port3"}],
+                'dstintf': [{"name": "port1"}],
                 'srcaddr': [{"name": "all"}],
                 'dstaddr': [{"name": "all"}],
                 'schedule': "always",
@@ -251,7 +311,10 @@ class FortiAPIClientTestCase(unittest.TestCase):
                 'action': "accept",
             }
         )
-        print(r.text)
+        mkey = str(r.json()['mkey'])
+        self.client.delete(
+            path='/api/v2/cmdb/firewall/policy' + '/' + quote(mkey, safe=''),
+        )
 
     def tearDown(self):
         self.client.close()
