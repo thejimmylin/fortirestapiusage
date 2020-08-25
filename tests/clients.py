@@ -206,6 +206,8 @@ class FortiAPIClientTestCase(unittest.TestCase):
         extintf = 'port1'
         extip = '100.65.61.168'
         mappedip = '10.65.61.168'
+        created_by = 'jimmy_lin'
+        remark = 'This is a remark field.'
         r = self.client.post(
             path='/api/v2/cmdb/firewall/vip',
             json={
@@ -214,6 +216,10 @@ class FortiAPIClientTestCase(unittest.TestCase):
                 'extintf': extintf,
                 'extip': extip,
                 'mappedip': [{'range': mappedip}],
+                'comment': json.dumps({
+                    'created_by': created_by,
+                    'remark': remark,
+                }),
             }
         )
         r = self.client.get(
@@ -224,9 +230,28 @@ class FortiAPIClientTestCase(unittest.TestCase):
         self.assertEqual(r.json()['results'][0]['name'], name)
         self.assertEqual(r.json()['results'][0]['extip'], extip)
         self.assertEqual(r.json()['results'][0]['mappedip'][0]['range'], mappedip)
+        self.assertEqual(json.loads(r.json()['results'][0]['comment'])['created_by'], created_by)
+        self.assertEqual(json.loads(r.json()['results'][0]['comment'])['remark'], remark)
         self.client.delete(
             path='/api/v2/cmdb/firewall/vip' + '/' + quote(name, safe=''),
         )
+
+    def test_post_firewall_policy_with_json_comment_and_check_consistency_and_delete(self):
+        r = self.client.post(
+            path='/api/v2/cmdb/firewall/policy',
+            json={
+                'srcintf': [{"name": "port1"}],
+                'dstintf': [{"name": "port3"}],
+                'srcaddr': [{"name": "all"}],
+                'dstaddr': [{"name": "all"}],
+                'schedule': "always",
+                'service': [{"name": "HTTP"}, {"name": "HTTPS"}],
+                'logtraffic': "all",
+                'inspection-mode': "proxy",
+                'action': "accept",
+            }
+        )
+        print(r.text)
 
     def tearDown(self):
         self.client.close()
