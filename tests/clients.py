@@ -203,20 +203,19 @@ class FortiAPIClientTestCase(unittest.TestCase):
     def test_post_firewall_vip_with_json_comment_and_check_consistency_and_delete(self):
         name = '_vip__100.65.61.168__10.65.61.168'
         type_ = 'static-nat'
-        extinf = 'port1'
+        extintf = 'port1'
         extip = '100.65.61.168'
-        mappedip = ['10.65.61.168',]
+        mappedip = '10.65.61.168'
         r = self.client.post(
             path='/api/v2/cmdb/firewall/vip',
             json={
                 'name': name,
                 'type': type_,
-                'extinf': extinf,
+                'extintf': extintf,
                 'extip': extip,
-                'mappedip': mappedip,
+                'mappedip': [{'range': mappedip}],
             }
         )
-        print(r.text)
         r = self.client.get(
             path='/api/v2/cmdb/firewall/vip' + '/' + quote(name, safe=''),
         )
@@ -224,7 +223,7 @@ class FortiAPIClientTestCase(unittest.TestCase):
         self.assertEqual(len(r.json()['results']), 1)
         self.assertEqual(r.json()['results'][0]['name'], name)
         self.assertEqual(r.json()['results'][0]['extip'], extip)
-        self.assertEqual(r.json()['results'][0]['mappedip'], mappedip)
+        self.assertEqual(r.json()['results'][0]['mappedip'][0]['range'], mappedip)
         self.client.delete(
             path='/api/v2/cmdb/firewall/vip' + '/' + quote(name, safe=''),
         )
