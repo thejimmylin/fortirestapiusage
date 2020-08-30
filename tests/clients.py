@@ -27,17 +27,16 @@ class FortiAPIClientTestCase(unittest.TestCase):
             username=CREDENTIALS['users']['admin']['username'],
             password=CREDENTIALS['users']['admin']['password']
         )
-        status_code = r.text[0]
-        status_code_descriptions = {
+        status_code = r.text[:1]
+        descriptions = {
             '0': 'Log in failure. Most likely an incorrect username/password combo.',
             '1': 'Successful log in',
             '2': 'Admin is now locked out',
             '3': 'Two-factor Authentication is needed',
         }
+        msg = descriptions.get(status_code, 'Unknown error. Can you log in manually?')
         if status_code != '1':
-            raise ValueError(
-                f'{status_code_descriptions["status_code"]}'
-            )
+            raise ValueError(msg)
 
     def test_get(self):
         r = self.client.get(
@@ -140,7 +139,6 @@ class FortiAPIClientTestCase(unittest.TestCase):
         r = self.client.get(
             path='/api/v2/cmdb/system/interface' + '/' + quote(name, safe=''),
         )
-        print(r.text)
         self.assertEqual(r.json()['status'], 'success')
         self.assertEqual(len(r.json()['results']), 1)
         self.assertEqual(r.json()['results'][0]['name'], name)
