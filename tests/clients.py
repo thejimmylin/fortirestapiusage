@@ -35,7 +35,8 @@ class FortiAPIClientTestCase(unittest.TestCase):
             '3': 'Two-factor Authentication is needed',
         }
         msg = descriptions.get(status_code, 'Unknown error. Can you log in manually?')
-        if status_code != '1':
+        is_logged_in = (status_code == '1')
+        if not is_logged_in:
             raise ValueError(msg)
 
     def test_get(self):
