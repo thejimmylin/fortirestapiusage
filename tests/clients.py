@@ -23,10 +23,21 @@ class FortiAPIClientTestCase(unittest.TestCase):
 
     def setUp(self):
         self.client = FortiAPIClient(CREDENTIALS['host'])
-        self.client.login(
+        r = self.client.login(
             username=CREDENTIALS['users']['admin']['username'],
             password=CREDENTIALS['users']['admin']['password']
         )
+        status_code = r.text[0]
+        status_code_descriptions = {
+            '0': 'Log in failure. Most likely an incorrect username/password combo.',
+            '1': 'Successful log in',
+            '2': 'Admin is now locked out',
+            '3': 'Two-factor Authentication is needed',
+        }
+        if status_code != '1':
+            raise ValueError(
+                f'{status_code_descriptions["status_code"]}'
+            )
 
     def test_get(self):
         r = self.client.get(

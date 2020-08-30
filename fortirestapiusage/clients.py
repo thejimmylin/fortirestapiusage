@@ -40,11 +40,15 @@ class FortiAPIClient():
         url_root = f'{self._protocol}://{self._host}'
         return url_root
 
-    def login(self, username, password, path='/logincheck'):
+    def login(self, username, password, path='/logincheck', ajax=1):
+        """
+        ajax: Format the response for easier parsing. Enable using 1.
+        """
         url = self.url_root + path
         data = {
             'username': username,
             'secretkey': password,
+            'ajax': ajax,
         }
         encoded_data = urlencode(data)
         response = self._session.post(
