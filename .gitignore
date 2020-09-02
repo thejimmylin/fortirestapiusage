@@ -6,3 +6,6 @@ __pycache__/
 
 # VSCode things
 .vscode/settings.json
+
+# Secrets
+/secrets.json

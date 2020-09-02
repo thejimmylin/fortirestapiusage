@@ -10,16 +10,18 @@ with open(os.path.join(BASE_DIR, 'secrets.json'), 'r', encoding='utf-8') as f:
     secrets = json.loads(f.read())
 
 
-CREDENTIALS = secrets['CREDENTIALS']
+HOST = secrets['CREDENTIALS']['host']
+USERNAME = secrets['CREDENTIALS']['users']['api_admin']['username']
+PASSWORD = secrets['CREDENTIALS']['users']['api_admin']['password']
 
 
 class FortiAPIClientTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.client = FortiAPIClient(CREDENTIALS['host'])
+        self.client = FortiAPIClient(HOST)
         r = self.client.login(
-            username=CREDENTIALS['users']['admin']['username'],
-            password=CREDENTIALS['users']['admin']['password']
+            username=USERNAME,
+            password=PASSWORD,
         )
         status_code = r.text[:1]
         descriptions = {
@@ -80,13 +82,13 @@ class FortiAPIClientTestCase(unittest.TestCase):
     def test_login_logout_heavily(self):
         for n in range(10):
             self.client.login(
-                username=CREDENTIALS['users']['admin']['username'],
-                password=CREDENTIALS['users']['admin']['password']
+                username=USERNAME,
+                password=PASSWORD,
             )
             self.client.logout()
         r = self.client.login(
-            username=CREDENTIALS['users']['admin']['username'],
-            password=CREDENTIALS['users']['admin']['password']
+            username=USERNAME,
+            password=PASSWORD,
         )
         self.assertIsNotNone(r.cookies.get('ccsrftoken'))
 
