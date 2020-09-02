@@ -23,6 +23,23 @@ git clone https://github.com/j3ygithub/fortirestapiusage C:\Users\jimmy_lin\repo
 pip install -r C:\Users\jimmy_lin\repos\fortirestapiusage\requirements.txt
 ```
 
+## Run tests
+
+```
+>>> pwd
+/Users/jimac/repos/fortirestapiusage
+>>> python -m tests.clients
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 6.203s
+
+OK
+```
+
+## Usages
+
+
+
 ## Meta
 
 Jimmy Lin <b00502013@gmail.com>
