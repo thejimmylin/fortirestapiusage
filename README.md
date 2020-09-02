@@ -38,7 +38,42 @@ OK
 
 ## Usages
 
-
+```
+>>> from fortirestapiusage.clients import FortiAPIClient
+>>> client = FortiAPIClient(host='150.117.123.248')
+>>> cleint.login(username='your_username', password='your_password')
+>>> r = client.get(path='/api/v2/cmdb/system/interface', params={'format': 'name|type', 'count': 3})
+>>> print(r.text)
+{
+  "http_method":"GET",
+  "revision":"71f322b1061f9acd6171c941a7e5dcf4",
+  "results":[
+    {
+      "name":"fortilink",
+      "q_origin_key":"fortilink",
+      "type":"aggregate"
+    },
+    {
+      "name":"port1",
+      "q_origin_key":"port1",
+      "type":"physical"
+    },
+    {
+      "name":"port2",
+      "q_origin_key":"port2",
+      "type":"physical"
+    }
+  ],
+  "vdom":"root",
+  "path":"system",
+  "name":"interface",
+  "status":"success",
+  "http_status":200,
+  "serial":"FGVMEV_B6WKV3L0D",
+  "version":"v6.4.2",
+  "build":1723
+}
+```
 
 ## Meta
 
