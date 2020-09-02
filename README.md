@@ -3,6 +3,8 @@ Python module about wrapped FortiOS REST API usages.
 
 > For FortiOS, FortiGate firewall.
 
+Based on Python module **requests** and **FortiOS REST API**.
+
 ## Installation
 
 OS X & Linux:
@@ -93,7 +95,7 @@ POST
 }
 ```
 
-See more detail in **fortirestapiusage.clients.FortiAPIClient** and tests.clients
+See more details in **fortirestapiusage.clients.FortiAPIClient** and **tests.clients**
 
 ## Run tests
 
