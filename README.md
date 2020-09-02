@@ -23,25 +23,18 @@ git clone https://github.com/j3ygithub/fortirestapiusage C:\Users\jimmy_lin\repo
 pip install -r C:\Users\jimmy_lin\repos\fortirestapiusage\requirements.txt
 ```
 
-## Run tests
-
-```
->>> pwd
-/Users/jimac/repos/fortirestapiusage
->>> python -m tests.clients
-...........
-----------------------------------------------------------------------
-Ran 11 tests in 6.203s
-
-OK
-```
-
 ## Usages
 
+Login
 ```
 >>> from fortirestapiusage.clients import FortiAPIClient
 >>> client = FortiAPIClient(host='150.117.123.248')
 >>> cleint.login(username='your_username', password='your_password')
+<Response [200]>
+```
+
+GET
+```
 >>> r = client.get(path='/api/v2/cmdb/system/interface', params={'format': 'name|type', 'count': 3})
 >>> print(r.text)
 {
@@ -73,7 +66,51 @@ OK
   "version":"v6.4.2",
   "build":1723
 }
+>>>
+>>> print(r.json()['results'][1]['name'])
+port1
 ```
+
+POST
+```
+>>> data = {'name': 'address__8.8.8.8__255.255.255.255', 'subnet': '8.8.8.8 255.255.255.255'}
+>>> r = client.post(path='/api/v2/cmdb/firewall/address', json=data)
+>>> print(r.text)
+{
+  "http_method":"POST",
+  "revision":"d6e8986e5ef1bc9c5be8a0702892998b",
+  "revision_changed":true,
+  "old_revision":"8ff978e86d5af205399bdd9c99b9d6ff",
+  "mkey":"address__8.8.8.8__255.255.255.255",
+  "status":"success",
+  "http_status":200,
+  "vdom":"root",
+  "path":"firewall",
+  "name":"address",
+  "serial":"FGVMEV_B6WKV3L0D",
+  "version":"v6.4.2",
+  "build":1723
+}
+```
+
+See more detail in **fortirestapiusage.clients.FortiAPIClient** and tests.clients
+
+## Run tests
+
+Run tests could help you make sure those basic configurations (Python package/Forti setup..) are well-done. 
+
+```
+>>> pwd
+/Users/jimac/repos/fortirestapiusage
+>>> python -m tests.clients
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 6.203s
+
+OK
+```
+
+The tests themselves are also good examples of how to use **fortirestapiusage**.
 
 ## Meta
 
