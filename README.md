@@ -1,5 +1,5 @@
 # fortirestapiusage
-Python module about wrapped FortiOS REST API usages.
+A Python module about wrapped FortiOS REST API usages.
 
 > For FortiOS, FortiGate firewall.
 
