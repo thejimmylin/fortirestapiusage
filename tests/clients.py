@@ -1,22 +1,16 @@
+import os
 import unittest
 import json
 from urllib.parse import quote
 from fortirestapiusage.clients import FortiAPIClient
 
 
-CREDENTIALS = {
-    'host': '150.117.123.248',
-    'users': {
-        'admin': {
-            'username': 'admin',
-            'password': '4fcb3244-e5d2-449c-a49d-7b6fa32bfa7f'
-        },
-        'readonlyadmin': {
-            'username': 'readonlyadmin',
-            'password': 'cb204a81-0a16-46e9-aaca-2a8cc070593b'
-        }
-    }
-}
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+with open(os.path.join(BASE_DIR, 'secrets.json'), 'r', encoding='utf-8') as f:
+    secrets = json.loads(f.read())
+
+
+CREDENTIALS = secrets['CREDENTIALS']
 
 
 class FortiAPIClientTestCase(unittest.TestCase):
