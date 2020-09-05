@@ -303,7 +303,7 @@ class FortiAPIClientTestCase(unittest.TestCase):
                 }),
             }
         )
-        r = client.post(
+        r = self.client.post(
             path='/api/v2/cmdb/firewall/policy',
             json={
                 'srcintf': [{"name": "port1"}],
@@ -313,13 +313,18 @@ class FortiAPIClientTestCase(unittest.TestCase):
                 'schedule': "always",
                 'service': [{"name": "HTTP"}, {"name": "HTTPS"}],
                 'action': "accept",
-                'comment': json.dumps({
+                'comments': json.dumps({
                     'created_by': created_by,
                     'remark': remark,
                 }),
             }
         )
         mkey = str(r.json()['mkey'])
+        r = self.client.get(
+            path='/api/v2/cmdb/firewall/policy' + '/' + quote(mkey, safe=''),
+        )
+        self.assertEqual(json.loads(r.json()['results'][0]['comments'])['created_by'], created_by)
+        self.assertEqual(json.loads(r.json()['results'][0]['comments'])['remark'], remark)
         self.client.delete(
             path='/api/v2/cmdb/firewall/policy' + '/' + quote(mkey, safe=''),
         )
@@ -335,14 +340,19 @@ class FortiAPIClientTestCase(unittest.TestCase):
                 'action': "accept",
                 "nat": "enable",
                 "ippool": "enable",
-                "poolname": [{"name": "ippool__150.117.123.177__150.117.123.177"}]
-                'comment': json.dumps({
+                "poolname": [{"name": "ippool__150.117.123.177__150.117.123.177"}],
+                'comments': json.dumps({
                     'created_by': created_by,
                     'remark': remark,
                 }),
             }
         )
         mkey = str(r.json()['mkey'])
+        r = self.client.get(
+            path='/api/v2/cmdb/firewall/policy' + '/' + quote(mkey, safe=''),
+        )
+        self.assertEqual(json.loads(r.json()['results'][0]['comments'])['created_by'], created_by)
+        self.assertEqual(json.loads(r.json()['results'][0]['comments'])['remark'], remark)
         self.client.delete(
             path='/api/v2/cmdb/firewall/policy' + '/' + quote(mkey, safe=''),
         )
