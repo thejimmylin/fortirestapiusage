@@ -303,18 +303,43 @@ class FortiAPIClientTestCase(unittest.TestCase):
                 }),
             }
         )
-        r = self.client.post(
+        r = client.post(
             path='/api/v2/cmdb/firewall/policy',
             json={
-                'srcintf': [{"name": "port3"}],
-                'dstintf': [{"name": "port1"}],
+                'srcintf': [{"name": "port1"}],
+                'dstintf': [{"name": "port3"}],
                 'srcaddr': [{"name": "all"}],
                 'dstaddr': [{"name": "all"}],
                 'schedule': "always",
                 'service': [{"name": "HTTP"}, {"name": "HTTPS"}],
-                'logtraffic': "all",
-                'inspection-mode': "proxy",
                 'action': "accept",
+                'comment': json.dumps({
+                    'created_by': created_by,
+                    'remark': remark,
+                }),
+            }
+        )
+        mkey = str(r.json()['mkey'])
+        self.client.delete(
+            path='/api/v2/cmdb/firewall/policy' + '/' + quote(mkey, safe=''),
+        )
+        r = self.client.post(
+            path='/api/v2/cmdb/firewall/policy',
+            json={
+                'srcintf': [{"name": "port1"}],
+                'dstintf': [{"name": "port3"}],
+                'srcaddr': [{"name": "_address__10.65.61.168__255.255.255.255"}],
+                'dstaddr': [{"name": "all"}],
+                'schedule': "always",
+                'service': [{"name": "HTTP"}, {"name": "HTTPS"}],
+                'action': "accept",
+                "nat": "enable",
+                "ippool": "enable",
+                "poolname": [{"name": "ippool__150.117.123.177__150.117.123.177"}]
+                'comment': json.dumps({
+                    'created_by': created_by,
+                    'remark': remark,
+                }),
             }
         )
         mkey = str(r.json()['mkey'])
