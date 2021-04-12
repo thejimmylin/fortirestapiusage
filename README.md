@@ -36,7 +36,7 @@ Login
 ```
 
 GET
-```
+```python
 >>> r = client.get(path='/api/v2/cmdb/system/interface', params={'format': 'name|type', 'count': 3})
 >>> print(r.text)
 {
@@ -74,7 +74,7 @@ port1
 ```
 
 POST
-```
+```python
 >>> data = {'name': 'address__8.8.8.8__255.255.255.255', 'subnet': '8.8.8.8 255.255.255.255'}
 >>> r = client.post(path='/api/v2/cmdb/firewall/address', json=data)
 >>> print(r.text)
